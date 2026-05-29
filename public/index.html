@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Dispatch Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #111827);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .dashboard {
+      width: 100%;
+      max-width: 860px;
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 32px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+    }
+
+    .dashboard h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .dashboard p {
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: white;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+    }
+
+    button {
+      border: none;
+      background: #2563eb;
+      color: white;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: #1d4ed8;
+    }
+
+    .results {
+      margin-top: 24px;
+      background: #020617;
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid #1e293b;
+      overflow-x: auto;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard">
+    <h1>Payment Dispatch Dashboard</h1>
+    <p>Send bulk STK requests through a cleaner and more maintainable workflow.</p>
+
+    <div class="grid">
+      <div>
+        <label for="paymentAmount">Amount</label>
+        <input type="number" id="paymentAmount" placeholder="Enter amount" />
+      </div>
+
+      <div>
+        <label for="phoneList">Phone Numbers</label>
+        <textarea id="phoneList" placeholder="Enter one phone number per line"></textarea>
+      </div>
+
+      <button id="dispatchButton">Dispatch STK Requests</button>
+    </div>
+
+    <section class="results">
+      <pre id="responseOutput">Awaiting transaction requests...</pre>
+    </section>
+  </main>
+
+  <script>
+    const dispatchButton = document.getElementById('dispatchButton');
+    const responseOutput = document.getElementById('responseOutput');
+
+    const submitTransactions = async () => {
+      const numbers = document.getElementById('phoneList').value;
+      const amount = document.getElementById('paymentAmount').value;
+
+      responseOutput.textContent = 'Processing requests...';
+
+      try {
+        const apiResponse = await fetch('/api/payments/stk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ numbers, amount }),
+        });
+
+        const responseData = await apiResponse.json();
+
+        responseOutput.textContent = JSON.stringify(responseData, null, 2);
+      } catch (requestError) {
+        responseOutput.textContent = JSON.stringify({
+          success: false,
+          message: requestError.message,
+        }, null, 2);
+      }
+    };
+
+    dispatchButton.addEventListener('click', submitTransactions);
+  </script>
+</body>
+</html>
